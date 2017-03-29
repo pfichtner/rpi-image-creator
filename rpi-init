@@ -1,0 +1,21 @@
+#!/bin/sh
+
+. ./funcs.sh
+
+dieIfEntryIsMissing DOWNLOAD_URL
+dieIfEntryIsMissing MD5SUM
+
+mkdir $BASEDIR/download/
+ZIPFILE=$BASEDIR/download/`basename $DOWNLOAD_URL`
+
+_which md5sum
+if [ "$MD5SUM" != "`md5sum $ZIPFILE | cut -d' ' -f1`" ]; then
+	_which wget
+	wget --quiet -c -O $ZIPFILE $DOWNLOAD_URL
+fi
+
+[ -d "$BASEDIR/images" ] || mkdir -p "$BASEDIR/images"
+unzip -o -qq -d "$BASEDIR/images" "$ZIPFILE"
+
+exit 0
+

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+. ./funcs.sh
+
+_umount $BASEDIR/mount/img_root/boot
+_umount $BASEDIR/mount/img_root
+
