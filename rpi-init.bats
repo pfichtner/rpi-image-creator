@@ -82,7 +82,7 @@
   echo "DOWNLOAD_URL=$DOWNLOAD_URL" >>$somedir/configfile
   echo "MD5SUM=$MD5SUM" >>$somedir/configfile
   
-  echo "ZIPFILE=$somedir/download/content.zip" >>$somedir/configfile
+  #### TODO REMOVE? echo "ZIPFILE=$somedir/download/content.zip" >>$somedir/configfile
   
   run ./rpi-init $somedir/configfile
   [ "$status" -eq 0 ]
@@ -111,7 +111,7 @@
   echo "DOWNLOAD_URL=$DOWNLOAD_URL" >>$somedir/configfile
   echo "MD5SUM=$MD5SUM" >>$somedir/configfile
   
-  echo "ZIPFILE=$somedir/download/content.zip" >>$somedir/configfile
+  #### TODO REMOVE? echo "ZIPFILE=$somedir/download/content.zip" >>$somedir/configfile
   
   run ./rpi-init $somedir/configfile
   echo "newContent that should be overwritten when unzipping again" > $somedir/images/bar
