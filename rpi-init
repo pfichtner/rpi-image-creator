@@ -5,7 +5,7 @@
 dieIfEntryIsMissing DOWNLOAD_URL
 dieIfEntryIsMissing MD5SUM
 
-mkdir $BASEDIR/download/
+[ -d $BASEDIR/download ] || mkdir $BASEDIR/download
 ZIPFILE=$BASEDIR/download/`basename $DOWNLOAD_URL`
 
 _which md5sum
