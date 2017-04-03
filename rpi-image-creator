@@ -1,12 +1,26 @@
 #!/bin/sh
 
+die() {
+    echo 1>&2 ERROR: "$1"
+    exit 1
+}
+
+copyToChroot() {
+    [ -r $1 ] && cp $1 $BASEDIR/mount/img_root/$1 || die "Could not copy $1"
+}
+
 CONFIGFILE=rpi-image-creator.conf
 
 rpi-init $CONFIGFILE
+. $CONFIGFILE
 
 # mount image file and copy static files
 rpi-mount $CONFIGFILE
 
+copyToChroot /etc/default/keyboard
+copyToChroot /etc/default/console-setup
+copyToChroot /etc/resolv.conf
+copyToChroot /etc/localtime
 cat run_in_chroot.sh | rpi-chroot $CONFIGFILE /bin/sh
 
 ### instead of doing stuff via sh scripts we could use ansible
