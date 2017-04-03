@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. ./funcs.sh
+CWD="$(dirname "$0")"
+. $CWD/funcs.sh
 
 dieIfEntryIsMissing DOWNLOAD_URL
 dieIfEntryIsMissing MD5SUM
@@ -8,9 +9,9 @@ dieIfEntryIsMissing MD5SUM
 [ -d $BASEDIR/download ] || mkdir $BASEDIR/download
 ZIPFILE=$BASEDIR/download/`basename $DOWNLOAD_URL`
 
-_which md5sum
+_which md5sum >/dev/null
 if [ "$MD5SUM" != "`md5sum $ZIPFILE | cut -d' ' -f1`" ]; then
-	_which wget
+	_which wget >/dev/null
 	wget --quiet -c -O $ZIPFILE $DOWNLOAD_URL
 fi
 

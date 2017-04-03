@@ -1,11 +1,12 @@
 #!/bin/sh
 
-. ./funcs.sh
+CWD="$(dirname "$0")"
+. $CWD/funcs.sh
 
 [ -d "$BASEDIR/images" ] || die "no images directory found"
 [ -d "$BASEDIR/mount" ] || mkdir -p "$BASEDIR/mount"
 
-_which "kpartx"
+_which kpartx >/dev/null
 kpartx=`kpartx -asv $BASEDIR/images/*.img` || die "Could not setup loop-back access to $BASEDIR/images/*.img"
 img_boot_dev=`echo "$kpartx" | grep -o 'loop.p.' | head -1 | tail -1`
 img_root_dev=`echo "$kpartx" | grep -o 'loop.p.' | head -2 | tail -1`

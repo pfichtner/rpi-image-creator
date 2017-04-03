@@ -1,6 +1,7 @@
 #!/bin/sh
 
-. ./funcs.sh
+CWD="$(dirname "$0")"
+. $CWD/funcs.sh
 
 [ -n "$DEST_DEVICE" ] || die "no DEST_DEVICE entry found in config"
 

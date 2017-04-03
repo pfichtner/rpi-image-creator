@@ -9,26 +9,27 @@ copyToChroot() {
     [ -r $1 ] && cp $1 $BASEDIR/mount/img_root/$1 || die "Could not copy $1"
 }
 
-CONFIGFILE=rpi-image-creator.conf
+CWD="$(dirname "$0")"
+CONFIGFILE=$CWD/rpi-image-creator.conf
 
-rpi-init $CONFIGFILE
+$CWD/rpi-init $CONFIGFILE
 . $CONFIGFILE
 
 # mount image file and copy static files
-rpi-mount $CONFIGFILE
+$CWD/rpi-mount $CONFIGFILE
 
 copyToChroot /etc/default/keyboard
 copyToChroot /etc/default/console-setup
 copyToChroot /etc/resolv.conf
 copyToChroot /etc/localtime
-cat run_in_chroot.sh | rpi-chroot $CONFIGFILE /bin/sh
+cat $CWD/run_in_chroot.sh | $CWD/rpi-chroot $CONFIGFILE /bin/sh
 
 ### instead of doing stuff via sh scripts we could use ansible
-# sudo ansible-playbook -c chroot -i '/path/to/debootstrap,/path/to/debootstrap' my-cool-playbook.yml
+# ansible-playbook -c chroot -i "$BASEDIR/mount/img_root" my-cool-playbook.yml
 
 # write to sdcard
-### rpi-mksdcard $CONFIGFILE
+$CWD/rpi-mksdcard $CONFIGFILE
 
 # umount
-rpi-umount $CONFIGFILE
+$CWD/rpi-umount $CONFIGFILE
 

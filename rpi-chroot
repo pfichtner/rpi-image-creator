@@ -7,7 +7,8 @@ finish() {
     _umount $BASEDIR/mount/img_root/dev/pts
 }
 
-. ./funcs.sh
+CWD="$(dirname "$0")"
+. $CWD/funcs.sh
 [ -d "$BASEDIR/mount" ] || die "no mount directory found"
 
 chroot $BASEDIR/mount/img_root date >/dev/null 2>&1 || die "Could not chroot date"
