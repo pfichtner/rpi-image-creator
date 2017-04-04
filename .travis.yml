@@ -1,3 +1,5 @@
+# loop device not supported by travis :-( https://github.com/travis-ci/travis-ci/issues/1119
+
 language: bash
 
 script:
