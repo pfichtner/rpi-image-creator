@@ -1,5 +1,5 @@
 language: bash
 
 script:
-  - bats/bin/bats .
+  - sudo bats/bin/bats .
 
