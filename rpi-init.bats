@@ -82,8 +82,6 @@
   echo "DOWNLOAD_URL=$DOWNLOAD_URL" >>$somedir/configfile
   echo "MD5SUM=$MD5SUM" >>$somedir/configfile
   
-  #### TODO REMOVE? echo "ZIPFILE=$somedir/download/content.zip" >>$somedir/configfile
-  
   run ./rpi-init $somedir/configfile
   [ "$status" -eq 0 ]
   [ "`echo $somedir/images/*`" == "$somedir/images/bar" ]
@@ -111,8 +109,6 @@
   echo "DOWNLOAD_URL=$DOWNLOAD_URL" >>$somedir/configfile
   echo "MD5SUM=$MD5SUM" >>$somedir/configfile
   
-  #### TODO REMOVE? echo "ZIPFILE=$somedir/download/content.zip" >>$somedir/configfile
-  
   run ./rpi-init $somedir/configfile
   echo "newContent that should be overwritten when unzipping again" > $somedir/images/bar
 
@@ -132,7 +128,7 @@
 ### integration tests ###
 #########################
 
-### TODO Test if md5sum won't fail if download file not already there
+### TODO Add a test that checks if md5sum won't fail if download file not already there
 
 @test "rpi-init will download on md5sum mismatch" {
   skip "must not unzip into /tmp (RAM)"
