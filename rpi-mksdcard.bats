@@ -37,7 +37,9 @@
 
 prepare_sdcard() {
   # travis-ci doesn't support loop devices, so skip tests if losetup -f cannot detect a free loop device
-  losetup -f || skip "No loop device available"
+  if [ "$CI" = "true" -a "$TRAVIS" = "true" ]; then
+    losetup -f || skip "No loop device available"
+  fi
 
   size="$1"
   dd if=/dev/zero bs=1M count=$size of=$somedir/aBlockDevice
