@@ -1,3 +1,6 @@
 [submodule "bats"]
 	path = bats
 	url = https://github.com/sstephenson/bats
+[submodule "helpers/mocks"]
+	path = helpers/mocks
+	url = https://github.com/jasonkarns/bats-mock
