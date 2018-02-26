@@ -3,6 +3,10 @@
 CWD="$(dirname "$0")"
 . $CWD/funcs.sh
 
+md5() {
+  md5sum $1 | cut -d' ' -f1
+}
+
 dieIfEntryIsMissing DOWNLOAD_URL
 dieIfEntryIsMissing MD5SUM
 
@@ -10,9 +14,10 @@ dieIfEntryIsMissing MD5SUM
 ZIPFILE=$BASEDIR/download/`basename $DOWNLOAD_URL`
 
 _which md5sum >/dev/null
-if [ "$MD5SUM" != "`md5sum $ZIPFILE | cut -d' ' -f1`" ]; then
-	_which wget >/dev/null
+if [ "$MD5SUM" != "`md5 $ZIPFILE`" ]; then
+        _which wget >/dev/null
 	wget --quiet -c -O $ZIPFILE $DOWNLOAD_URL
+        [ "$MD5SUM" != "`md5 $ZIPFILE`" ] && die "md5sum mismatch"
 fi
 
 [ -d "$BASEDIR/images" ] || mkdir -p "$BASEDIR/images"

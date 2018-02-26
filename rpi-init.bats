@@ -51,21 +51,69 @@
   somedir=`mktemp -d`
   touch $somedir/configfile
   echo "BASEDIR=$somedir" >>$somedir/configfile
-  echo "DOWNLOAD_URL=http://some.download.url" >>$somedir/configfile
-  echo "not really a zip file but that does not matter" > $somedir/somefile.zip
-  MD5SUM=`md5sum $somedir/somefile.zip | cut -d' ' -f1`
+  echo "DOWNLOAD_URL=http://some.download.url/somefile.zip" >>$somedir/configfile
+  mkdir "$somedir/download"
+  echo "not really a zip file but that does not matter" > $somedir/download/somefile.zip
+  MD5SUM=`md5sum $somedir/download/somefile.zip | cut -d' ' -f1`
   echo "MD5SUM=$MD5SUM" >>$somedir/configfile
 
   run ./rpi-init $somedir/configfile
   [ "$status" -eq 0 ]
 
-  rm $somedir/somefile.zip
+  rm $somedir/download/somefile.zip
   rm $somedir/configfile
-  rm "$somedir/download/some.download.url"
   rmdir "$somedir/download"
   rmdir "$somedir/images"
   rmdir "$somedir"
 }
+
+@test "rpi-init will download if md5sum mismatch" {
+  somedir=`mktemp -d`
+  touch $somedir/configfile
+  echo "BASEDIR=$somedir" >>$somedir/configfile
+  echo "DOWNLOAD_URL=http://some.download.url/somefile.zip" >>$somedir/configfile
+  mkdir "$somedir/download"
+  echo "some_con..." >$somedir/download/somefile.zip
+  echo "some_content" >$somedir/expected_content
+  MD5SUM=`md5sum $somedir/expected_content | cut -d' ' -f1`
+  echo "MD5SUM=$MD5SUM" >>$somedir/configfile
+
+  load helpers/mocks/stub
+  stub wget "${_WGET_ARGS} : mv $somedir/expected_content $somedir/download/somefile.zip"
+  stub unzip "${_UNZIP_ARGS} : echo 0"
+
+  run ./rpi-init $somedir/configfile
+  [ "$status" -eq 0 ]
+
+  rm $somedir/download/somefile.zip
+  rm $somedir/configfile
+  rmdir "$somedir/download"
+  rmdir "$somedir/images"
+  rmdir "$somedir"
+}
+
+@test "rpi-init will fail if md5sum mismatch after download" {
+  somedir=`mktemp -d`
+  touch $somedir/configfile
+  echo "BASEDIR=$somedir" >>$somedir/configfile
+  echo "DOWNLOAD_URL=http://some.download.url/somefile.zip" >>$somedir/configfile
+  mkdir "$somedir/download"
+  echo "not really a zip file but that does not matter" > $somedir/download/somefile.zip
+  echo "MD5SUM=some_not_matching_md5sum" >>$somedir/configfile
+
+  load helpers/mocks/stub
+  stub wget "${_WGET_ARGS}: echo"
+
+  run ./rpi-init $somedir/configfile
+  [ "$status" -eq 1 ]
+  # [ "$output" = "ERROR: md5sum mismatch" ]
+
+  rm $somedir/download/somefile.zip
+  rm $somedir/configfile
+  rmdir "$somedir/download"
+  rmdir "$somedir"
+}
+
 
 @test "rpi-init will unzip exisiting zip files to image directory" {
   somedir=`mktemp -d`
