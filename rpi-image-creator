@@ -10,26 +10,27 @@ copyToChroot() {
 }
 
 CWD="$(dirname "$0")"
+RPI_IC_DIR=$CWD
 CONFIGFILE=$CWD/rpi-image-creator.conf
 
-$CWD/rpi-init $CONFIGFILE
+$RPI_IC_DIR/rpi-init $CONFIGFILE
 . $CONFIGFILE
 
 # mount image file and copy static files
-$CWD/rpi-mount $CONFIGFILE
+$RPI_IC_DIR/rpi-mount $CONFIGFILE
 
 copyToChroot /etc/default/keyboard
 copyToChroot /etc/default/console-setup
 copyToChroot /etc/resolv.conf
 copyToChroot /etc/localtime
-cat $CWD/run_in_chroot.sh | $CWD/rpi-chroot $CONFIGFILE /bin/sh
+cat $RPI_IC_DIR/run_in_chroot.sh | $RPI_IC_DIR/rpi-chroot $CONFIGFILE /bin/sh
 
 ### instead of doing stuff via sh scripts we could use ansible
 # ansible-playbook -c chroot -i "$BASEDIR/mount/img_root" my-cool-playbook.yml
 
 # write to sdcard
-$CWD/rpi-mksdcard $CONFIGFILE
+$RPI_IC_DIR/rpi-mksdcard $CONFIGFILE
 
 # umount
-$CWD/rpi-umount $CONFIGFILE
+$RPI_IC_DIR/rpi-umount $CONFIGFILE
 
