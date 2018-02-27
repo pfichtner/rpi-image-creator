@@ -1,14 +1,14 @@
 #!/usr/bin/env bats
 
 @test "rpi-init will die if not config file ist given" {
-  run ./rpi-init
+  run ../rpi-init
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: configfile not set" ]
 }
 
 @test "rpi-init will die if basedir is set but does not exist" {
   somedir=`mktemp -d`
-  run ./rpi-init $somedir/someNotExistingSubDirectory
+  run ../rpi-init $somedir/someNotExistingSubDirectory
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: configfile not readable" ]
   rmdir "$somedir"
@@ -17,7 +17,7 @@
 @test "rpi-init will die if no basedir entry in configfile" {
   somedir=`mktemp -d`
   touch $somedir/configfile
-  run ./rpi-init $somedir/configfile
+  run ../rpi-init $somedir/configfile
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: no BASEDIR entry found in config" ]
   rm $somedir/configfile
@@ -28,7 +28,7 @@
   somedir=`mktemp -d`
   touch $somedir/configfile
   echo "BASEDIR=$somedir" >>$somedir/configfile
-  run ./rpi-init $somedir/configfile
+  run ../rpi-init $somedir/configfile
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: no DOWNLOAD_URL entry found in config" ]
   rm $somedir/configfile
@@ -40,7 +40,7 @@
   touch $somedir/configfile
   echo "BASEDIR=$somedir" >>$somedir/configfile
   echo "DOWNLOAD_URL=http://some.download.url" >>$somedir/configfile
-  run ./rpi-init $somedir/configfile
+  run ../rpi-init $somedir/configfile
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: no MD5SUM entry found in config" ]
   rm $somedir/configfile
@@ -57,7 +57,7 @@
   MD5SUM=`md5sum $somedir/download/somefile.zip | cut -d' ' -f1`
   echo "MD5SUM=$MD5SUM" >>$somedir/configfile
 
-  run ./rpi-init $somedir/configfile
+  run ../rpi-init $somedir/configfile
   [ "$status" -eq 0 ]
 
   rm $somedir/download/somefile.zip
@@ -82,7 +82,7 @@
   stub wget "${_WGET_ARGS} : mv $somedir/expected_content $somedir/download/somefile.zip"
   stub unzip "${_UNZIP_ARGS} : echo 0"
 
-  run ./rpi-init $somedir/configfile
+  run ../rpi-init $somedir/configfile
   [ "$status" -eq 0 ]
 
   rm $somedir/download/somefile.zip
@@ -104,7 +104,7 @@
   load helpers/mocks/stub
   stub wget "${_WGET_ARGS}: echo"
 
-  run ./rpi-init $somedir/configfile
+  run ../rpi-init $somedir/configfile
   [ "$status" -eq 1 ]
   # [ "$output" = "ERROR: md5sum mismatch" ]
 
@@ -130,7 +130,7 @@
   echo "DOWNLOAD_URL=$DOWNLOAD_URL" >>$somedir/configfile
   echo "MD5SUM=$MD5SUM" >>$somedir/configfile
   
-  run ./rpi-init $somedir/configfile
+  run ../rpi-init $somedir/configfile
   [ "$status" -eq 0 ]
   [ "`echo $somedir/images/*`" == "$somedir/images/bar" ]
   [ "`cat $somedir/images/bar`" == "foo" ]
@@ -157,10 +157,10 @@
   echo "DOWNLOAD_URL=$DOWNLOAD_URL" >>$somedir/configfile
   echo "MD5SUM=$MD5SUM" >>$somedir/configfile
   
-  run ./rpi-init $somedir/configfile
+  run ../rpi-init $somedir/configfile
   echo "newContent that should be overwritten when unzipping again" > $somedir/images/bar
 
-  run ./rpi-init $somedir/configfile
+  run ../rpi-init $somedir/configfile
   [ "$status" -eq 0 ]
   [ "`echo $somedir/images/*`" == "$somedir/images/bar" ]
   [ "`cat $somedir/images/bar`" == "foo" ]
@@ -194,7 +194,7 @@
   echo "DOWNLOAD_URL=$DOWNLOAD_URL" >>$somedir/configfile
   echo "MD5SUM=someInvalidMd5Sum" >>$somedir/configfile
 
-  run ./rpi-init $somedir/configfile
+  run ../rpi-init $somedir/configfile
   [ "$status" -eq 0 ]
   [ "5753bcb74ead5219628cd8622410f9ef" = "`md5sum $ZIPFILE | cut -d' ' -f1`" ]
 

@@ -1,14 +1,14 @@
 #!/usr/bin/env bats
 
 @test "rpi-mksdcard will die if not config file ist given" {
-  run ./rpi-mksdcard
+  run ../rpi-mksdcard
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: configfile not set" ]
 }
 
 @test "rpi-mksdcard will die if basedir is set but does not exist" {
   somedir=`mktemp -d`
-  run ./rpi-mksdcard $somedir/someNotExistingSubDirectory
+  run ../rpi-mksdcard $somedir/someNotExistingSubDirectory
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: configfile not readable" ]
   rmdir "$somedir"
@@ -17,7 +17,7 @@
 @test "rpi-mksdcard will die if no basedir entry in configfile" {
   somedir=`mktemp -d`
   touch $somedir/configfile
-  run ./rpi-mksdcard $somedir/configfile
+  run ../rpi-mksdcard $somedir/configfile
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: no BASEDIR entry found in config" ]
   rm $somedir/configfile
@@ -28,7 +28,7 @@
   somedir=`mktemp -d`
   touch $somedir/configfile
   echo "BASEDIR=$somedir" >>$somedir/configfile
-  run ./rpi-mksdcard $somedir/configfile
+  run ../rpi-mksdcard $somedir/configfile
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: no DEST_DEVICE entry found in config" ]
   rm $somedir/configfile
@@ -60,7 +60,7 @@ free_sdcard() {
   loopDevice=`prepare_sdcard 99`
   echo "DEST_DEVICE=$loopDevice" >>$somedir/configfile
 
-  run ./rpi-mksdcard $somedir/configfile
+  run ../rpi-mksdcard $somedir/configfile
   [ "$status" -eq 1 ]
   [ "${lines[0]}" = "dd: error writing '$loopDevice': No space left on device" ]
   [ "${lines[1]}" = "ERROR: Could not wipe SD card in $loopDevice" ]
@@ -84,7 +84,7 @@ free_sdcard() {
   echo "some root content" >$somedir/mount/img_root/aRootFile.txt
   echo "some boot content" >$somedir/mount/img_root/boot/aRootFile.txt
 
-  run ./rpi-mksdcard $somedir/configfile
+  run ../rpi-mksdcard $somedir/configfile
   [ "$status" -eq 0 ]
   
   rm $somedir/mount/img_root/aRootFile.txt

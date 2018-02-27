@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 @test "rpi-chroot will die if not config file ist given" {
-  run ./rpi-chroot
+  run ../rpi-chroot
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: configfile not set" ]
 }
@@ -9,7 +9,7 @@
 @test "rpi-chroot will die if basedir is set but does not exist" {
   somedir=`mktemp -d`
 
-  run ./rpi-chroot $somedir/someNotExistingSubDirectory
+  run ../rpi-chroot $somedir/someNotExistingSubDirectory
 
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: configfile not readable" ]
@@ -21,7 +21,7 @@
   somedir=`mktemp -d`
   touch $somedir/configfile
 
-  run ./rpi-chroot $somedir/configfile
+  run ../rpi-chroot $somedir/configfile
 
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: no BASEDIR entry found in config" ]
@@ -34,7 +34,7 @@
   somedir=`mktemp -d`
   echo "BASEDIR=$somedir" >>$somedir/configfile
 
-  run ./rpi-chroot $somedir/configfile
+  run ../rpi-chroot $somedir/configfile
 
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: no mount directory found" ]
@@ -48,7 +48,7 @@
   echo "BASEDIR=$somedir" >>$somedir/configfile
   mkdir $somedir/mount
 
-  run ./rpi-chroot $somedir/configfile
+  run ../rpi-chroot $somedir/configfile
 
   [ "$status" -eq 1 ]
   [ "$output" = "ERROR: Could not chroot date" ]
