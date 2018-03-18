@@ -3,6 +3,6 @@
 CWD="$(dirname "$0")"
 . $CWD/funcs.sh
 
-_umount $BASEDIR/mount/img_root/boot
-_umount $BASEDIR/mount/img_root
+rpi_umount
 
+exit 0

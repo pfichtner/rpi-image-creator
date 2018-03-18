@@ -1,36 +1,34 @@
 #!/bin/sh
 
-die() {
-    echo 1>&2 ERROR: "$1"
-    exit 1
-}
-
-copyToChroot() {
-    [ -r $1 ] && cp $1 $BASEDIR/mount/img_root/$1 || die "Could not copy $1"
-}
+. `readlink -f "$0.conf"`
 
 CWD="$(dirname "$0")"
-RPI_IC_DIR=$CWD
-CONFIGFILE=$CWD/rpi-image-creator.conf
+. `readlink -f "$CWD/rpi-funcs.sh"`
 
-$RPI_IC_DIR/rpi-init $CONFIGFILE
-. $CONFIGFILE
+# download if missing
+rpi_init || die "init failed"
 
 # mount image file and copy static files
-$RPI_IC_DIR/rpi-mount $CONFIGFILE
+rpi_mount || die "mount failed"
 
-copyToChroot /etc/default/keyboard
-copyToChroot /etc/default/console-setup
-copyToChroot /etc/resolv.conf
-copyToChroot /etc/localtime
-cat $RPI_IC_DIR/run_in_chroot.sh | $RPI_IC_DIR/rpi-chroot $CONFIGFILE /bin/sh
+copyToPi /etc/default/keyboard
+copyToPi /etc/default/console-setup
+copyToPi /etc/resolv.conf
+copyToPi /etc/localtime
 
+rpi_chroot_setup || die "chroot-setup failed"
+trap rpi_chroot_teardown EXIT
+
+# cat $CWD/run_in_chroot.sh | chroot $BASEDIR/mount/img_root /bin/sh || die "chroot failed"
 ### instead of doing stuff via sh scripts we could use ansible
-# ansible-playbook -c chroot -i "$BASEDIR/mount/img_root" my-cool-playbook.yml
+ansible-playbook -c chroot -i "$BASEDIR/mount/img_root," ansible/playbook.yml
+
+rpi_chroot_teardown || die "chroot-teardown failed"
+trap '' EXIT
 
 # write to sdcard
-$RPI_IC_DIR/rpi-mksdcard $CONFIGFILE
+rpi_mksdcard || die "mksdcard failed"
 
 # umount
-$RPI_IC_DIR/rpi-umount $CONFIGFILE
+rpi_umount || die "umount failed"
 

@@ -1,25 +1,14 @@
 #!/bin/sh
 
-finish() {
-    _umount $BASEDIR/mount/img_root/proc
-    _umount $BASEDIR/mount/img_root/sys
-    _umount $BASEDIR/mount/img_root/run
-    _umount $BASEDIR/mount/img_root/dev/pts
-}
-
 CWD="$(dirname "$0")"
 . $CWD/funcs.sh
-[ -d "$BASEDIR/mount" ] || die "no mount directory found"
 
-chroot $BASEDIR/mount/img_root date >/dev/null 2>&1 || die "Could not chroot date"
-
-trap finish EXIT
-mount -t devpts devpts -o noexec,nosuid,gid=5,mode=620 $BASEDIR/mount/img_root/dev/pts || die "Could not mount /dev/pts"
-mount -t proc proc $BASEDIR/mount/img_root/proc || die "Could not mount /proc"
-mount -t tmpfs -o mode=1777 none $BASEDIR/mount/img_root/run || "Could not mount /run"
+rpi_chroot_setup
 
 shift
 chroot $BASEDIR/mount/img_root $*
+
+rpi_chroot_teardown
 
 exit 0
 

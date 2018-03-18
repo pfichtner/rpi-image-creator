@@ -1,0 +1,61 @@
+---
+#- hosts: localhost
+#- hosts: local-chroot
+- hosts: "all"
+  tasks:
+  - name: remove files
+    file: path={{ item }} state=absent
+    with_items: 
+      - /etc/init.d/apply_noobs_os_config
+      - /etc/rc2.d/S01apply_noobs_os_config
+      - /etc/profile.d/raspi-config.sh
+
+  - name: setting hostname
+    copy: content="localhost\n" dest=/etc/hostname
+
+  - name: apply fix http://blog.schlomo.schapiro.org/2013/11/setting-hostname-from-dhcp-in-debian.html
+    copy: content="# this will make the system always set the hostname from DHCP\nunset old_host_name\n" dest=/etc/dhcp/dhclient-enter-hooks.d/unset_old_hostname
+
+  - name: disable ld.so.preload
+    replace: dest=/etc/ld.so.preload regexp='^([^\#].*)' replace='#\1'
+
+  - name: remove wolfram-engine
+    package: name=wolfram-engine state=absent
+
+  - name: fix interrupted dpkg
+    command: dpkg --configure -a
+
+    # replacement for apt call which fails on my system with qemu:handle_cpu_signal received signal outside vCPU context @ pc=0x601563dd", "qemu:handle_cpu_signal received signal outside vCPU context @ pc=0x6017b0f5"
+    #- name: upgrade packages
+    #apt: update_cache=yes upgrade=yes autoclean=yes autoremove=yes
+  - name: upgrade packages
+    command: "{{ item }}"
+    with_items: 
+    - apt update -y
+    - apt upgrade -y
+    - apt autoclean -y
+    - apt autoremove -y
+
+  ### FAILS WITH UNKNOWN STATE SO USE kill (below)
+  #- name: stop rsyslog
+    #service: name=rsyslog state=stopped
+
+  - name: Get running rsyslog processes
+    shell: "ps -ef | grep -v grep | grep -w rsyslog | awk '{print $2}'"
+    register: running_processes
+
+  - name: Kill running rsyslog processes
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+
+  - wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: killed_processes
+
+  - name: Force kill stuck rsyslog processes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ killed_processes.results | select('failed') | map(attribute='item') | list }}"
+
